@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1,
+maximum-scale=1,
+user-scalable=no,
+viewport-fit=cover">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Camera">
+
+<title>Camera</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+margin:0;
+padding:0;
+width:100%;
+height:100%;
+overflow:hidden;
+font-family:
+-apple-system,
+BlinkMacSystemFont,
+"SF Pro Display",
+"SF Pro Text",
+"Helvetica Neue",
+Arial,
+sans-serif;
+}
+
+body{
+background:#000;
+color:white;
+}
+
+/* =====================================================
+HOME SCREEN
+===================================================== */
+
+#home{
+position:fixed;
+inset:0;
+
+background:
+radial-gradient(
+ellipse at 15% 8%,
+rgba(255,255,255,.28) 0%,
+rgba(255,255,255,0) 35%
+),
+radial-gradient(
+ellipse at 85% 15%,
+rgba(120,150,255,.45) 0%,
+rgba(120,150,255,0) 38%
+),
+radial-gradient(
+ellipse at 50% 90%,
+rgba(255,120,190,.42) 0%,
+rgba(255,120,190,0) 42%
+),
+linear-gradient(
+145deg,
+#111c3f 0%,
+#334e9b 32%,
+#817bbd 55%,
+#dba1c4 73%,
+#211b4c 100%
+);
+
+overflow:hidden;
+}
+
+/* subtle wallpaper glow */
+
+#home:before{
+content:"";
+position:absolute;
+inset:-20%;
+background:
+radial-gradient(
+circle at 40% 35%,
+rgba(255,255,255,.12),
+transparent 30%
+);
+filter:blur(30px);
+pointer-events:none;
+}
+
+/* =====================================================
+STATUS BAR
+===================================================== */
+
+.statusbar{
+position:absolute;
+top:0;
+left:0;
+right:0;
+
+height:54px;
+
+padding:
+env(safe-area-inset-top)
+22px
+0
+22px;
+
+display:flex;
+align-items:center;
+justify-content:space-between;
+
+font-weight:600;
+font-size:15px;
+
+z-index:10;
+}
+
+.status-right{
+display:flex;
+align-items:center;
+gap:7px;
+font-size:13px;
+}
+
+.battery{
+width:25px;
+height:12px;
+
+border:1.5px solid white;
+border-radius:4px;
+
+padding:1.5px;
+
+position:relative;
+}
+
+.battery:after{
+content:"";
+position:absolute;
+right:-3px;
+top:3px;
+
+width:2px;
+height:5px;
+
+background:white;
+border-radius:1px;
+}
+
+.battery-inner{
+width:100%;
+height:100%;
+
+background:white;
+border-radius:2px;
+}
+
+/* =====================================================
+LOCK / HOME TIME
+===================================================== */
+
+.clock-area{
+position:absolute;
+
+top:88px;
+left:0;
+right:0;
+
+text-align:center;
+
+text-shadow:
+0 2px 8px rgba(0,0,0,.25);
+}
+
+.date{
+font-size:20px;
+font-weight:500;
+letter-spacing:-.3px;
+}
+
+.time{
+font-size:74px;
+font-weight:300;
+
+letter-spacing:-4px;
+line-height:.95;
+
+margin-top:4px;
+}
+
+/* =====================================================
+APP GRID
+===================================================== */
+
+.app-grid{
+position:absolute;
+
+top:275px;
+left:20px;
+right:20px;
+
+display:grid;
+
+grid-template-columns:
+repeat(4,1fr);
+
+column-gap:14px;
+row-gap:21px;
+}
+
+.app{
+text-align:center;
+}
+
+.app-icon{
+width:64px;
+height:64px;
+
+margin:auto;
+
+border-radius:15px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:34px;
+
+box-shadow:
+0 5px 13px rgba(0,0,0,.20);
+
+position:relative;
+
+overflow:hidden;
+}
+
+.app-icon:after{
+content:"";
+position:absolute;
+left:0;
+right:0;
+top:0;
+height:45%;
+
+background:
+linear-gradient(
+rgba(255,255,255,.28),
+rgba(255,255,255,0)
+);
+
+pointer-events:none;
+}
+
+.app-name{
+font-size:12px;
+
+margin-top:5px;
+
+text-shadow:
+0 1px 4px rgba(0,0,0,.7);
+}
+
+/* realistic-ish app icons */
+
+.camera-icon{
+background:
+linear-gradient(
+145deg,
+#35363a,
+#080808
+);
+}
+
+.weather-icon{
+background:
+linear-gradient(
+180deg,
+#4da8ff,
+#1877dc
+);
+}
+
+.photos-icon{
+background:white;
+}
+
+.maps-icon{
+background:
+linear-gradient(
+145deg,
+#5be06c,
+#2d8df4
+);
+}
+
+.messages-icon{
+background:#36c759;
+}
+
+.music-icon{
+background:
+linear-gradient(
+145deg,
+#ff375f,
+#af52de
+);
+}
+
+.safari-icon{
+background:
+linear-gradient(
+145deg,
+#62d8ff,
+#0875e1
+);
+}
+
+.settings-icon{
+background:
+linear-gradient(
+145deg,
+#969696,
+#555
+);
+}
+
+/* =====================================================
+DOCK
+===================================================== */
+
+.dock{
+position:absolute;
+
+left:14px;
+right:14px;
+bottom:
+calc(10px + env(safe-area-inset-bottom));
+
+height:83px;
+
+padding:9px;
+
+border-radius:28px;
+
+background:
+rgba(255,255,255,.24);
+
+backdrop-filter:
+blur(30px)
+saturate(180%);
+
+-webkit-backdrop-filter:
+blur(30px)
+saturate(180%);
+
+box-shadow:
+0 10px 30px rgba(0,0,0,.15);
+
+display:grid;
+
+grid-template-columns:
+repeat(4,1fr);
+
+gap:9px;
+}
+
+.dock .app-icon{
+width:61px;
+height:61px;
+}
+
+/* =====================================================
+CAMERA
+===================================================== */
+
+#camera{
+position:fixed;
+inset:0;
+background:#000;
+
+display:none;
+}
+
+#video{
+position:absolute;
+
+inset:0;
+
+width:100%;
+height:100%;
+
+object-fit:cover;
+}
+
+/* dark camera gradient */
+
+.camera-gradient{
+position:absolute;
+inset:0;
+
+background:
+linear-gradient(
+rgba(0,0,0,.65),
+transparent 25%,
+transparent 70%,
+rgba(0,0,0,.7)
+);
+
+pointer-events:none;
+}
+
+/* camera top */
+
+.camera-top{
+position:absolute;
+
+top:0;
+left:0;
+right:0;
+
+padding:
+calc(env(safe-area-inset-top) + 12px)
+18px
+0;
+
+display:flex;
+
+justify-content:space-between;
+align-items:center;
+}
+
+.camera-button{
+width:43px;
+height:43px;
+
+border:0;
+border-radius:50%;
+
+background:
+rgba(255,255,255,.18);
+
+color:white;
+
+font-size:25px;
+
+backdrop-filter:blur(15px);
+}
+
+.camera-title{
+font-weight:600;
+font-size:16px;
+}
+
+/* card guide */
+
+.card-guide{
+position:absolute;
+
+left:50%;
+top:50%;
+
+transform:
+translate(-50%,-50%);
+
+width:270px;
+height:378px;
+
+border:
+1.5px solid
+rgba(255,255,255,.7);
+
+border-radius:14px;
+
+box-shadow:
+0 0 0 9999px
+rgba(0,0,0,.15);
+
+pointer-events:none;
+}
+
+/* fake card */
+
+.ar-card{
+position:absolute;
+
+left:50%;
+top:50%;
+
+width:260px;
+height:364px;
+
+transform:
+translate(-50%,-50%);
+
+background:white;
+
+border-radius:14px;
+
+color:#111;
+
+box-shadow:
+0 20px 50px rgba(0,0,0,.55);
+
+z-index:5;
+
+padding:10px;
+
+display:none;
+
+transition:
+opacity .4s,
+transform .4s;
+}
+
+.card-corner{
+font-size:25px;
+font-weight:700;
+
+line-height:.9;
+}
+
+.card-center{
+position:absolute;
+
+left:50%;
+top:50%;
+
+transform:
+translate(-50%,-50%);
+
+font-size:90px;
+}
+
+.card-bottom{
+position:absolute;
+
+right:10px;
+bottom:10px;
+
+transform:rotate(180deg);
+}
+
+.red{
+color:#d60000;
+}
+
+/* reveal text */
+
+.effect-text{
+position:absolute;
+
+left:50%;
+top:calc(50% + 215px);
+
+transform:
+translateX(-50%);
+
+background:
+rgba(0,0,0,.65);
+
+padding:8px 15px;
+
+border-radius:20px;
+
+font-size:14px;
+
+backdrop-filter:blur(10px);
+
+z-index:8;
+
+white-space:nowrap;
+
+display:none;
+}
+
+/* camera shutter */
+
+.camera-bottom{
+position:absolute;
+
+left:0;
+right:0;
+bottom:0;
+
+padding:
+0
+0
+calc(22px + env(safe-area-inset-bottom));
+
+display:flex;
+justify-content:center;
+}
+
+.shutter{
+width:72px;
+height:72px;
+
+border-radius:50%;
+
+border:4px solid white;
+
+background:
+rgba(255,255,255,.9);
+
+box-shadow:
+0 0 0 5px rgba(255,255,255,.2);
+}
+
+/* =====================================================
+SETTINGS
+===================================================== */
+
+#settings{
+position:fixed;
+inset:0;
+
+background:#f2f2f7;
+
+color:#111;
+
+overflow:auto;
+
+display:none;
+}
+
+.settings-nav{
+height:
+calc(60px + env(safe-area-inset-top));
+
+padding:
+env(safe-area-inset-top)
+18px
+0;
+
+display:flex;
+align-items:flex-end;
+
+justify-content:space-between;
+
+padding-bottom:10px;
+
+position:sticky;
+top:0;
+
+background:
+rgba(242,242,247,.8);
+
+backdrop-filter:blur(20px);
+
+z-index:10;
+}
+
+.settings-title{
+font-size:25px;
+font-weight:700;
+}
+
+.done{
+border:0;
+background:none;
+
+color:#007aff;
+
+font-size:17px;
+}
+
+.section-title{
+font-size:13px;
+color:#777;
+
+text-transform:uppercase;
+
+margin:
+24px
+18px
+8px;
+}
+
+.settings-box{
+margin:0 14px;
+
+background:white;
+
+border-radius:14px;
+
+overflow:hidden;
+}
+
+.setting-row{
+min-height:54px;
+
+padding:10px 15px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+border-bottom:
+1px solid #e5e5e5;
+}
+
+.setting-row:last-child{
+border-bottom:0;
+}
+
+.setting-left{
+font-size:16px;
+}
+
+.setting-description{
+font-size:12px;
+color:#888;
+margin-top:2px;
+}
+
+select{
+border:0;
+
+background:#eee;
+
+border-radius:8px;
+
+padding:7px;
+
+font-size:15px;
+}
+
+/* wallpaper picker */
+
+.wallpapers{
+display:grid;
+
+grid-template-columns:
+repeat(3,1fr);
+
+gap:10px;
+
+padding:12px;
+}
+
+.wallpaper{
+height:82px;
+
+border-radius:12px;
+
+border:3px solid transparent;
+}
+
+.wallpaper.active{
+border-color:#007aff;
+}
+
+/* wallpapers */
+
+.wall-1{
+background:
+radial-gradient(circle at 20% 20%,#fff5,transparent 30%),
+linear-gradient(145deg,#101b3e,#4058a5,#dca4c5,#211a49);
+}
+
+.wall-2{
+background:
+radial-gradient(circle at 80% 20%,#fff5,transparent 25%),
+linear-gradient(145deg,#07152d,#135d91,#63c6d9);
+}
+
+.wall-3{
+background:
+radial-gradient(circle at 30% 20%,#fff5,transparent 25%),
+linear-gradient(145deg,#351536,#8d3970,#efb0c9);
+}
+
+.wall-4{
+background:
+radial-gradient(circle at 70% 20%,#fff5,transparent 25%),
+linear-gradient(145deg,#061b43,#075ca9,#63c7ff);
+}
+
+.wall-5{
+background:
+linear-gradient(145deg,#050505,#555,#080808);
+}
+
+.wall-6{
+background:
+radial-gradient(circle at 20% 20%,#fff5,transparent 25%),
+linear-gradient(145deg,#251046,#7242bc,#ec9eea);
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+HOME SCREEN
+===================================================== -->
+
+<div id="home">
+
+<div class="statusbar">
+
+<div id="statusTime">
+9:41
+</div>
+
+<div class="status-right">
+<span>●●●</span>
+<span>Wi-Fi</span>
+<div class="battery">
+<div class="battery-inner"></div>
+</div>
+</div>
+
+</div>
+
+<div class="clock-area">
+
+<div class="date" id="date">
+Saturday, September 27
+</div>
+
+<div class="time" id="time">
+9:41
+</div>
+
+</div>
+
+
+<div class="app-grid">
+
+<!-- CAMERA -->
+
+<div class="app" onclick="openCamera()">
+
+<div class="app-icon camera-icon">
+📷
+</div>
+
+<div class="app-name">
+Camera
+</div>
+
+</div>
+
+
+<div class="app">
+
+<div class="app-icon weather-icon">
+☀️
+</div>
+
+<div class="app-name">
+Weather
+</div>
+
+</div>
+
+
+<div class="app">
+
+<div class="app-icon maps-icon">
+🗺️
+</div>
+
+<div class="app-name">
+Maps
+</div>
+
+</div>
+
+
+<div class="app">
+
+<div class="app-icon messages-icon">
+💬
+</div>
+
+<div class="app-name">
+Messages
+</div>
+
+</div>
+
+
+<div class="app">
+
+<div class="app-icon photos-icon">
+🌈
+</div>
+
+<div class="app-name">
+Photos
+</div>
+
+</div>
+
+
+<div class="app">
+
+<div class="app-icon music-icon">
+🎵
+</div>
+
+<div class="app-name">
+Music
+</div>
+
+</div>
+
+
+<div class="app">
+
+<div class="app-icon safari-icon">
+🧭
+</div>
+
+<div class="app-name">
+Safari
+</div>
+
+</div>
+
+
+<div class="app" onclick="openSettings()">
+
+<div class="app-icon settings-icon">
+⚙️
+</div>
+
+<div class="app-name">
+Settings
+</div>
+
+</div>
+
+</div>
+
+
+<!-- DOCK -->
+
+<div class="dock">
+
+<div class="app">
+<div class="app-icon messages-icon">💬</div>
+</div>
+
+<div class="app">
+<div class="app-icon safari-icon">🧭</div>
+</div>
+
+<div class="app">
+<div class="app-icon music-icon">🎵</div>
+</div>
+
+<div class="app">
+<div class="app-icon camera-icon"
+onclick="openCamera()">📷</div>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+CAMERA
+===================================================== -->
+
+<div id="camera">
+
+<video
+id="video"
+autoplay
+playsinline
+muted>
+</video>
+
+<div class="camera-gradient"></div>
+
+
+<div class="camera-top">
+
+<button
+class="camera-button"
+onclick="closeCamera()">
+×
+</button>
+
+<div class="camera-title">
+Camera
+</div>
+
+<button
+class="camera-button"
+onclick="resetEffect()">
+↻
+</button>
+
+</div>
+
+
+<div
+id="cardGuide"
+class="card-guide">
+</div>
+
+
+<div
+id="arCard"
+class="ar-card">
+
+<div id="cardTop"
+class="card-corner">
+A♠
+</div>
+
+<div
+id="cardMiddle"
+class="card-center">
+♠
+</div>
+
+<div
+id="cardBottom"
+class="card-corner card-bottom">
+A♠
+</div>
+
+</div>
+
+
+<div
+id="effectText"
+class="effect-text">
+Hold your card over the phone
+</div>
+
+
+<div class="camera-bottom">
+
+<button
+class="shutter"
+onclick="startEffect()">
+</button>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+SETTINGS
+===================================================== -->
+
+<div id="settings">
+
+<div class="settings-nav">
+
+<div class="settings-title">
+Settings
+</div>
+
+<button
+class="done"
+onclick="closeSettings()">
+Done
+</button>
+
+</div>
+
+
+<div class="section-title">
+Card Effect
+</div>
+
+
+<div class="settings-box">
+
+
+<div class="setting-row">
+
+<div>
+<div class="setting-left">
+AR card
+</div>
+
+<div class="setting-description">
+Random or specific fake card
+</div>
+</div>
+
+<select id="fakeMode">
+<option value="random">Random</option>
+<option value="specific">Specific</option>
+</select>
+
+</div>
+
+
+<div
+class="setting-row"
+id="specificRow">
+
+<div class="setting-left">
+Fake card
+</div>
+
+<select id="fakeCard">
+</select>
+
+</div>
+
+
+<div class="setting-row">
+
+<div>
+<div class="setting-left">
+Actual card
+</div>
+
+<div class="setting-description">
+Card revealed at the end
+</div>
+</div>
+
+<select id="realCard">
+</select>
+
+</div>
+
+
+<div class="setting-row">
+
+<div>
+<div class="setting-left">
+Fake card duration
+</div>
+
+<div class="setting-description">
+Time before it changes back
+</div>
+</div>
+
+<select id="duration">
+
+<option value="1500">
+1.5 sec
+</option>
+
+<option value="2500">
+2.5 sec
+</option>
+
+<option value="4000">
+4 sec
+</option>
+
+<option value="6000">
+6 sec
+</option>
+
+<option value="8000">
+8 sec
+</option>
+
+</select>
+
+</div>
+
+
+<div class="setting-row">
+
+<div>
+<div class="setting-left">
+Automatic effect
+</div>
+
+<div class="setting-description">
+Start when Camera opens
+</div>
+
+</div>
+
+<input
+type="checkbox"
+id="autoRun">
+
+</div>
+
+</div>
+
+
+<div class="section-title">
+Home Screen
+</div>
+
+
+<div class="settings-box">
+
+<div class="wallpapers">
+
+<div
+class="wallpaper wall-1"
+data-wall="wall-1">
+</div>
+
+<div
+class="wallpaper wall-2"
+data-wall="wall-2">
+</div>
+
+<div
+class="wallpaper wall-3"
+data-wall="wall-3">
+</div>
+
+<div
+class="wallpaper wall-4"
+data-wall="wall-4">
+</div>
+
+<div
+class="wallpaper wall-5"
+data-wall="wall-5">
+</div>
+
+<div
+class="wallpaper wall-6"
+data-wall="wall-6">
+</div>
+
+</div>
+
+</div>
+
+
+<div class="section-title">
+Secret Controls
+</div>
+
+
+<div class="settings-box">
+
+<div class="setting-row">
+
+<div>
+
+<div class="setting-left">
+Hide settings icon
+</div>
+
+<div class="setting-description">
+Use five taps on the clock instead
+</div>
+
+</div>
+
+<input
+type="checkbox"
+id="hideSettings">
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+CARDS
+===================================================== */
+
+const suits=[
+"♠",
+"♥",
+"♦",
+"♣"
+];
+
+const ranks=[
+"A",
+"2",
+"3",
+"4",
+"5",
+"6",
+"7",
+"8",
+"9",
+"10",
+"J",
+"Q",
+"K"
+];
+
+const cards=[];
+
+for(let s of suits){
+
+for(let r of ranks){
+
+cards.push(r+s);
+
+}
+
+}
+
+
+/* =====================================================
+SETTINGS
+===================================================== */
+
+let config=JSON.parse(
+localStorage.getItem("magicConfig")
+)||{
+
+fakeMode:"random",
+
+fakeCard:"A♠",
+
+realCard:"7♥",
+
+duration:2500,
+
+autoRun:false,
+
+wall:"wall-1",
+
+hideSettings:false
+
+};
+
+
+const fakeMode=
+document.getElementById("fakeMode");
+
+const fakeCard=
+document.getElementById("fakeCard");
+
+const realCard=
+document.getElementById("realCard");
+
+const duration=
+document.getElementById("duration");
+
+const autoRun=
+document.getElementById("autoRun");
+
+const hideSettings=
+document.getElementById("hideSettings");
+
+const specificRow=
+document.getElementById("specificRow");
+
+
+/* populate card menus */
+
+cards.forEach(card=>{
+
+let a=document.createElement("option");
+
+a.value=card;
+
+a.textContent=card;
+
+fakeCard.appendChild(a);
+
+
+let b=document.createElement("option");
+
+b.value=card;
+
+b.textContent=card;
+
+realCard.appendChild(b);
+
+});
+
+
+function saveConfig(){
+
+config.fakeMode=fakeMode.value;
+
+config.fakeCard=fakeCard.value;
+
+config.realCard=realCard.value;
+
+config.duration=
+Number(duration.value);
+
+config.autoRun=
+autoRun.checked;
+
+config.hideSettings=
+hideSettings.checked;
+
+localStorage.setItem(
+"magicConfig",
+JSON.stringify(config)
+);
+
+updateUI();
+
+}
+
+
+function updateUI(){
+
+fakeMode.value=config.fakeMode;
+
+fakeCard.value=config.fakeCard;
+
+realCard.value=config.realCard;
+
+duration.value=config.duration;
+
+autoRun.checked=config.autoRun;
+
+hideSettings.checked=config.hideSettings;
+
+specificRow.style.display=
+config.fakeMode==="specific"
+?"flex"
+:"none";
+
+
+document
+.querySelectorAll(".wallpaper")
+.forEach(w=>{
+
+w.classList.toggle(
+"active",
+w.dataset.wall===config.wall
+);
+
+});
+
+
+document.getElementById("home")
+.style.background=
+getWallpaper(config.wall);
+
+
+/* hide settings app */
+
+const settingsApps=
+document.querySelectorAll(".settings-icon");
+
+settingsApps.forEach(icon=>{
+
+icon.parentElement.parentElement.style.display=
+config.hideSettings
+?"none"
+:"block";
+
+});
+
+}
+
+
+function getWallpaper(name){
+
+const wallpapers={
+
+"wall-1":
+"radial-gradient(circle at 15% 8%,rgba(255,255,255,.28),transparent 35%),radial-gradient(circle at 85% 15%,rgba(120,150,255,.45),transparent 38%),radial-gradient(circle at 50% 90%,rgba(255,120,190,.42),transparent 42%),linear-gradient(145deg,#111c3f,#334e9b,#817bbd,#dba1c4,#211b4c)",
+
+"wall-2":
+"linear-gradient(145deg,#07152d,#135d91,#63c6d9)",
+
+"wall-3":
+"linear-gradient(145deg,#351536,#8d3970,#efb0c9)",
+
+"wall-4":
+"linear-gradient(145deg,#061b43,#075ca9,#63c7ff)",
+
+"wall-5":
+"linear-gradient(145deg,#050505,#555,#080808)",
+
+"wall-6":
+"linear-gradient(145deg,#251046,#7242bc,#ec9eea)"
+
+};
+
+return wallpapers[name];
+
+}
+
+
+fakeMode.onchange=saveConfig;
+fakeCard.onchange=saveConfig;
+realCard.onchange=saveConfig;
+duration.onchange=saveConfig;
+autoRun.onchange=saveConfig;
+hideSettings.onchange=saveConfig;
+
+
+document
+.querySelectorAll(".wallpaper")
+.forEach(w=>{
+
+w.onclick=()=>{
+
+config.wall=w.dataset.wall;
+
+localStorage.setItem(
+"magicConfig",
+JSON.stringify(config)
+);
+
+updateUI();
+
+};
+
+});
+
+
+/* =====================================================
+CLOCK
+===================================================== */
+
+function updateClock(){
+
+const now=new Date();
+
+let time=
+now.toLocaleTimeString(
+[],
+{
+hour:"numeric",
+minute:"2-digit"
+}
+);
+
+document.getElementById(
+"time"
+).textContent=time;
+
+document.getElementById(
+"statusTime"
+).textContent=time;
+
+
+document.getElementById(
+"date"
+).textContent=
+now.toLocaleDateString(
+[],
+{
+weekday:"long",
+month:"long",
+day:"numeric"
+}
+);
+
+}
+
+setInterval(
+updateClock,
+1000
+);
+
+updateClock();
+
+
+/* =====================================================
+CAMERA
+===================================================== */
+
+let stream=null;
+
+let running=false;
+
+
+async function openCamera(){
+
+document.getElementById(
+"home"
+).style.display="none";
+
+document.getElementById(
+"camera"
+).style.display="block";
+
+
+try{
+
+stream=
+await navigator.mediaDevices.getUserMedia({
+
+video:{
+facingMode:{
+ideal:"environment"
+}
+},
+
+audio:false
+
+});
+
+
+document.getElementById(
+"video"
+).srcObject=stream;
+
+
+}catch(error){
+
+showText(
+"Camera permission required"
+);
+
+}
+
+
+if(config.autoRun){
+
+setTimeout(
+startEffect,
+700
+);
+
+}
+
+}
+
+
+function closeCamera(){
+
+if(stream){
+
+stream
+.getTracks()
+.forEach(track=>track.stop());
+
+stream=null;
+
+}
+
+resetEffect();
+
+document.getElementById(
+"camera"
+).style.display="none";
+
+document.getElementById(
+"home"
+).style.display="block";
+
+}
+
+
+function randomCard(){
+
+return cards[
+Math.floor(
+Math.random()*cards.length
+)
+];
+
+}
+
+
+function setCard(card){
+
+const isRed=
+card.includes("♥")||
+card.includes("♦");
+
+
+document.getElementById(
+"cardTop"
+).textContent=card;
+
+document.getElementById(
+"cardMiddle"
+).textContent=
+card.slice(-1);
+
+document.getElementById(
+"cardBottom"
+).textContent=card;
+
+
+document.getElementById(
+"cardTop"
+).className=
+"card-corner"+
+(isRed?" red":"");
+
+document.getElementById(
+"cardMiddle"
+).className=
+"card-center"+
+(isRed?" red":"");
+
+document.getElementById(
+"cardBottom"
+).className=
+"card-corner card-bottom"+
+(isRed?" red":"");
+
+}
+
+
+function showText(text){
+
+const el=
+document.getElementById(
+"effectText"
+);
+
+el.textContent=text;
+
+el.style.display="block";
+
+}
+
+
+function startEffect(){
+
+if(running)return;
+
+running=true;
+
+
+/* choose fake card */
+
+let fake;
+
+if(config.fakeMode==="specific"){
+
+fake=config.fakeCard;
+
+}else{
+
+fake=randomCard();
+
+}
+
+
+/* show instruction */
+
+showText(
+"Hold your card over the phone"
+);
+
+
+/* fake card */
+
+setTimeout(()=>{
+
+if(!running)return;
+
+setCard(fake);
+
+const card=
+document.getElementById("arCard");
+
+card.style.display="block";
+
+card.style.opacity="0";
+
+card.style.transform=
+"translate(-50%,-50%) scale(.94)";
+
+
+requestAnimationFrame(()=>{
+
+card.style.opacity="1";
+
+card.style.transform=
+"translate(-50%,-50%) scale(1)";
+
+});
+
+
+showText(fake);
+
+},350);
+
+
+/* reveal */
+
+setTimeout(()=>{
+
+if(!running)return;
+
+const card=
+document.getElementById("arCard");
+
+
+card.style.opacity="0";
+
+card.style.transform=
+"translate(-50%,-50%) scale(.92)";
+
+
+setTimeout(()=>{
+
+setCard(config.realCard);
+
+card.style.opacity="1";
+
+card.style.transform=
+"translate(-50%,-50%) scale(1)";
+
+showText(
+config.realCard
+);
+
+running=false;
+
+
+setTimeout(()=>{
+
+showText(
+""
+);
+
+document.getElementById(
+"effectText"
+).style.display="none";
+
+},1300);
+
+},400);
+
+},350+config.duration);
+
+}
+
+
+function resetEffect(){
+
+running=false;
+
+const card=
+document.getElementById("arCard");
+
+card.style.display="none";
+
+card.style.opacity="1";
+
+card.style.transform=
+"translate(-50%,-50%) scale(1)";
+
+document.getElementById(
+"effectText"
+).style.display="none";
+
+}
+
+
+/* =====================================================
+SETTINGS
+===================================================== */
+
+function openSettings(){
+
+document.getElementById(
+"settings"
+).style.display="block";
+
+}
+
+
+function closeSettings(){
+
+saveConfig();
+
+document.getElementById(
+"settings"
+).style.display="none";
+
+}
+
+
+/* =====================================================
+SECRET SETTINGS
+5 taps on clock
+===================================================== */
+
+let taps=0;
+
+let tapTimer=null;
+
+document
+.getElementById("time")
+.addEventListener(
+"click",
+()=>{
+
+taps++;
+
+clearTimeout(tapTimer);
+
+tapTimer=setTimeout(
+()=>taps=0,
+1200
+);
+
+if(taps>=5){
+
+taps=0;
+
+openSettings();
+
+}
+
+});
+
+
+updateUI();
+
+</script>
+
+</body>
+</html>
